@@ -21,9 +21,8 @@ processDir :: FilePath -> IO ()
 processDir d = do
     printDir d
     contents <- getDirectoryContents d
-    directories <- getDirectories contents
-    let cleanDirectories = makeFullPathAndSort d $ removeSpecialDirs directories
-    mapM_ processDir cleanDirectories
+    directories <- getDirectories $ makeFullPathAndSort d $ removeSpecialDirs contents 
+    mapM_ processDir directories
 
 printDir :: FilePath -> IO () 
 printDir d = do
