@@ -1,9 +1,10 @@
-## Life in Haskell - from Graham Hutton's Book
+Life in Haskell - from Graham Hutton's Book
+==========================================
 
 > module Main where
 
-This is a literal Haskell file so I can use free test to describe the program
-interleaved with the program itself, look her comes the import!
+This is a literal Haskell file so I can use free text to describe the program
+interleaved with the program itself, look here comes the import!
 
 > import Control.Concurrent.Thread.Delay
 
