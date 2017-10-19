@@ -6,6 +6,8 @@ Life in Haskell - from Graham Hutton's Book
 This is a literate Haskell file so I can use free text to describe the program
 interleaved with the program itself, look here comes the import!
 
+I'm porting the IO version from the book to ncurses for a nicer UI.
+
 > import Control.Concurrent.Thread.Delay
 > import UI.NCurses
 
