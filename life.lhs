@@ -7,29 +7,31 @@ This is a literal Haskell file so I can use free text to describe the program
 interleaved with the program itself, look here comes the import!
 
 > import Control.Concurrent.Thread.Delay
-> import System.Console.Terminal.Size
+> import UI.NCurses
 
-> type Pos = (Int,Int)
+> type Pos = (Integer,Integer)
 > type Board = [Pos]
 
-> cls :: IO ()
-> cls = putStr "\ESC[2J"
+> columns :: Integer
+> columns = 20
 
-> terminalSize :: IO (Maybe (Window Int)) 
-> terminalSize = size
-
-> writeAt :: Pos -> String -> IO ()
-> writeAt p xs = do goto p
->                   putStr xs
-
-> goto :: Pos -> IO ()
-> goto (x,y) = putStr ("\ESC[" ++ show y ++ ";" ++ show x ++ "H")
+> rows :: Integer
+> rows = 10
 
 > glider :: Board
 > glider = [(4,2),(2,3),(4,3),(3,4),(4,4)]
 
-> showCells :: Board -> IO () 
-> showCells b = sequence_ [writeAt p "0" | p <- b]
+> writeAt :: Pos -> String -> Update ()
+> writeAt (x,y) s = do 
+>                     moveCursor y x
+>                     drawString s
+
+> showCells :: Window -> Board -> Curses () 
+> showCells w b = updateWindow w $ do 
+>                   resizeWindow rows columns
+>                   drawBox Nothing Nothing
+>                   sequence_ [writeAt p "*" | p <- b]
+>                   moveCursor 0 0
 
 > isAlive :: Board -> Pos -> Bool
 > isAlive b p = elem p b
@@ -37,35 +39,36 @@ interleaved with the program itself, look here comes the import!
 > isEmpty :: Board -> Pos -> Bool
 > isEmpty b p = not $ isAlive b p
 
-> neighbours :: Window Int -> Pos -> [Pos]
-> neighbours w (x,y) = map (wrap w) [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
+> neighbours :: Pos -> [Pos]
+> neighbours (x,y) = map wrap [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
 
-> wrap :: Window Int -> Pos ->  Pos 
-> wrap (Window width height) (x,y) = (((x-1) `mod` width) + 1, ((y-1) `mod` height) + 1)
+> wrap :: Pos ->  Pos 
+> wrap (x,y) = (((x-1) `mod` columns), ((y-1) `mod` rows))
 
-> liveNeighbours :: Window Int -> Board -> Pos -> Int
-> liveNeighbours w b = length . filter (isAlive b) . (neighbours w)
+> liveNeighbours :: Board -> Pos -> Int
+> liveNeighbours b = length . filter (isAlive b) . neighbours
 
-> survivors :: Window Int -> Board -> [Pos]
-> survivors w b = [p | p <- b, elem (liveNeighbours w b p ) [2,3]]
+> survivors :: Board -> [Pos]
+> survivors b = [p | p <- b, elem (liveNeighbours b p ) [2,3]]
 
-> births :: Window Int -> Board -> [Pos]
-> births w b = [p | p <- rmDupes (concat (map (neighbours w) b)), isEmpty b p, liveNeighbours w b p == 3]
+> births :: Board -> [Pos]
+> births b = [p | p <- rmDupes (concat (map neighbours b)), isEmpty b p, liveNeighbours b p == 3]
 
 > rmDupes :: Eq a => [a] -> [a]
 > rmDupes [] = []
 > rmDupes (x:xs) = x : rmDupes (filter (/= x) xs)
 
-> nextGen :: Window Int -> Board -> Board
-> nextGen w b = survivors w b ++ births w b
+> nextGen :: Board -> Board
+> nextGen b = survivors b ++ births b
 
-> life :: Maybe (Window Int) -> Board -> IO ()
-> life Nothing _ = putStrLn "Cannot determine terminal size!"
-> life (Just w) b = do cls;
->             		   showCells b;
->             		   delay 1000;
->             		   life (Just w) (nextGen w b)
+> life :: Window -> Board -> Curses ()
+> life w b = do 
+>              showCells w b
+>              render
+>              life w (nextGen b)
 
 > main :: IO ()
-> main = do w <- terminalSize;
->			life w glider
+> main = runCurses $ do 
+>          setEcho False 
+>          w <- defaultWindow 
+>          life w glider
