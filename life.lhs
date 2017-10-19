@@ -3,7 +3,7 @@ Life in Haskell - from Graham Hutton's Book
 
 > module Main where
 
-This is a literal Haskell file so I can use free text to describe the program
+This is a literate Haskell file so I can use free text to describe the program
 interleaved with the program itself, look here comes the import!
 
 > import Control.Concurrent.Thread.Delay
