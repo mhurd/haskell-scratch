@@ -10,6 +10,7 @@ I'm porting the IO version from the book to ncurses for a nicer UI.
 
 > import Control.Concurrent.Thread.Delay
 > import UI.NCurses
+> import Control.Monad.IO.Class
 
 > type Pos = (Integer,Integer)
 > type Board = [Pos]
@@ -63,26 +64,17 @@ I'm porting the IO version from the book to ncurses for a nicer UI.
 > showCells :: Window -> Board -> Int -> Curses () 
 > showCells w b n = updateWindow w $ do 
 >                     resizeWindow rows columns
->                     cls
 >                     drawBox Nothing Nothing
 >                     sequence_ [writeAt p "*" | p <- b]
 >                     moveCursor 0 0
+>                     drawString $ "frame: " ++ (show n)
 
 > life :: Window -> Board -> Int -> Curses ()
 > life w b n = do 
 >                showCells w b n
 >                render
+>                liftIO $ delay 500000
 >                life w (nextGen b) (n+1)
->                liftIO $ delay 500
-
-I can't work out how to get the call out to delay :: Integer -> IO ()
-to work? I get this on compilation: 
-
-life.lhs:74:18: error:
-    Variable not in scope: liftIO :: IO () -> Curses ()
-
-I thought liftIO was supposed to 'lift' the IO Monad into the Curses Monad? Curses
-has a MonadIO instance: https://hackage.haskell.org/package/ncurses-0.2.16/docs/UI-NCurses.html 
 
 > main :: IO ()
 > main = runCurses $ do 
