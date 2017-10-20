@@ -54,7 +54,7 @@ returns True
 > verifyWrapIsOk :: Bool
 > verifyWrapIsOk = [] == ((filter outOfBounds) $ map wrap [(x,y) | x <- [-100..100], y <- [-100..100]])
 >        	   where
->				 outOfBounds (x,y) = x < 0 || x > (columns-1) || y < 0 || y > (rows-1)
+>				 outOfBounds (x,y) = x < 0 || x >= columns || y < 0 || y >= rows
 
 i.e. for all positions including much greater than the bounds of the board the wrapped values all exist within the board
 
