@@ -56,9 +56,8 @@ moveCursor is row, column which is why the x, y are inverted
 > wrap :: Pos ->  Pos 
 > wrap (x,y) = ((x `mod` displayColumns), (y `mod` displayRows)) 
 
-The glider still crashes with: life: CursesException "drawString: rc == ERR"
-I thought it was that my wrap function was generating dodgy out-of-bounds positions (it was before) but the following function
-returns True
+The glider still crashes in the bottom right of the board with: life: CursesException "drawString: rc == ERR". 
+I've moved the glider to avoid it for now...
 
 > verifyWrapIsOk :: [Pos]
 > verifyWrapIsOk = ((filter outOfBounds) $ map wrap [(x,y) | x <- [0..displayColumns], y <- [0..displayRows]])
