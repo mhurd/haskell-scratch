@@ -2,9 +2,9 @@
 
 An implementation of the Parser described in the the paper; "Monads for functional programming" by Philip Wadler.
 
-> import Prelude hiding ((*))
+> import Prelude hiding ((*), (+))
 
-The notation described in the paper clashes with multiplication from Prelude, hide it in this module.
+The notation described in the paper clashes with addition/multiplication from Prelude, hide it in this module.
 
 > type ToParse = String
 > type RemainingToParse = String
@@ -17,6 +17,8 @@ The notation described in the paper clashes with multiplication from Prelude, hi
 >                 item' [] = []
 >                 item' (x:xs) = [(x, xs)]
 
+Sequencing
+
 > unit :: a -> Parser a
 > unit a = \s -> [(a, s)]
 
@@ -28,3 +30,14 @@ The notation described in the paper clashes with multiplication from Prelude, hi
 
 > threeItems :: Parser (Char, Char, Char)
 > threeItems = item * (\a -> item * (\b -> item * (\c -> unit (a, b, c))))
+
+Alternation
+
+> zero :: Parser a
+> zero = \s -> []
+
+> (+) :: Parser a -> Parser a -> Parser a
+> m + n = \x -> (m x) ++ (n x)
+
+> oneOrTwoItems :: Parser String
+> oneOrTwoItems = \s -> (((item * (\a -> unit [a]))) + (item * (\a -> (item * (\b -> unit [a,b]))))) s
