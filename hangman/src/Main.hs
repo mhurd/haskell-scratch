@@ -63,7 +63,7 @@ handleGuess puzzle guess = do
         (_, True) -> do
             putStrLn "You already guessed that character, pick something else!"
             return puzzle
-        (True, _) -> do 
+        (True, _) -> do
             putStrLn "This character was in the word, filling accordingly."
             return (fillInCharacter puzzle guess)
         (false, _) -> do
@@ -73,7 +73,7 @@ handleGuess puzzle guess = do
 fillInCharacter :: Puzzle -> Char -> Puzzle
 fillInCharacter (Puzzle word filledInSoFar s) c = Puzzle word newFilledInSoFar (c : s)
     where zipper guessed wordChar guessChar =
-            if wordChar == guessed 
+            if wordChar == guessed
             then Just wordChar
             else guessChar
           newFilledInSoFar =
@@ -102,15 +102,15 @@ gameWords = do
   aw <- allWords
   let filtered = filter gameFilter aw
   return (map (fmap toLower) filtered)
-  where gameLength w = 
+  where gameLength w =
           let l = length (w :: String)
           in l >= minWordLength
              && l < maxWordLength
-        alphaChar c = 
+        alphaChar c =
             (ord (c :: Char)) >= 97 && (ord (c :: Char)) <= 122
-        alpha w = 
+        alpha w =
             all alphaChar (w :: String)
-        gameFilter w = 
+        gameFilter w =
             (gameLength w) && (alpha w)
 
 randomWord :: WordList -> IO String
