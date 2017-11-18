@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad (forever)
+import Control.Monad (forever, when)
 import Data.Char (toLower, ord)
 import Data.Maybe (isJust)
 import Data.List (intersperse)
@@ -9,13 +9,11 @@ import System.Random (randomRIO)
 
 type WordList = [String]
 
-data Puzzle = Puzzle String [Maybe Char] [Char]
+data Puzzle = Puzzle String [Maybe Char] String
 
 instance Show Puzzle where
     show (Puzzle _ discovered guessed) =
-        (intersperse ' ' $
-            fmap renderPuzzleChar discovered)
-        ++ " Guessed so far: " ++ guessed
+        intersperse ' ' (fmap renderPuzzleChar discovered) ++ " Guessed so far: " ++ guessed
 
 minWordLength :: Int
 minWordLength = 5
@@ -42,19 +40,17 @@ runGame puzzle = forever $ do
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ guessed) =
-    if length guessed > maxWordLength then
+    when (length guessed > maxWordLength) $
         do
             putStrLn "You lose!"
             putStrLn $ "The word was: " ++ wordToGuess
             exitSuccess
-    else return ()
 
 gameWin :: Puzzle -> IO ()
 gameWin (Puzzle _ filledInSoFar _) =
-    if all isJust filledInSoFar then
+    when (all isJust filledInSoFar) $
         do putStrLn "You win!"
            exitSuccess
-    else return ()
 
 handleGuess :: Puzzle -> Char -> IO Puzzle
 handleGuess puzzle guess = do
@@ -80,10 +76,10 @@ fillInCharacter (Puzzle word filledInSoFar s) c = Puzzle word newFilledInSoFar (
             zipWith (zipper c) word filledInSoFar
 
 alreadyGuessed :: Puzzle -> Char -> Bool
-alreadyGuessed (Puzzle _ _ g) c = elem c g
+alreadyGuessed (Puzzle _ _ g) c = c `elem` g
 
 charInWord :: Puzzle -> Char -> Bool
-charInWord (Puzzle w _ _) c = elem c w
+charInWord (Puzzle w _ _) c = c `elem` w
 
 renderPuzzleChar :: Maybe Char -> Char
 renderPuzzleChar Nothing = '_'
@@ -107,15 +103,15 @@ gameWords = do
           in l >= minWordLength
              && l < maxWordLength
         alphaChar c =
-            (ord (c :: Char)) >= 97 && (ord (c :: Char)) <= 122
+            ord (c :: Char) >= 97 && ord (c :: Char) <= 122
         alpha w =
             all alphaChar (w :: String)
         gameFilter w =
-            (gameLength w) && (alpha w)
+            gameLength w && alpha w
 
 randomWord :: WordList -> IO String
 randomWord wl = do
-    randomIndex <- randomRIO (0, (length wl) - 1)
+    randomIndex <- randomRIO (0, length wl - 1)
     return $ wl !! randomIndex
 
 randomWord' :: IO String
