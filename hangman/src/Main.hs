@@ -13,13 +13,17 @@ data Puzzle = Puzzle String [Maybe Char] String
 
 instance Show Puzzle where
     show (Puzzle _ discovered guessed) =
-        intersperse ' ' (fmap renderPuzzleChar discovered) ++ " Guessed so far: " ++ guessed
+        intersperse ' ' (fmap renderPuzzleChar discovered) ++ " Guessed so far: "
+            ++ guessed ++ " Guesses remaining: " ++ show (maxGuesses - length guessed)
 
 minWordLength :: Int
 minWordLength = 5
 
 maxWordLength :: Int
 maxWordLength = 7
+
+maxGuesses :: Int
+maxGuesses = 11
 
 main :: IO ()
 main = do
@@ -39,8 +43,8 @@ runGame puzzle = forever $ do
         _ -> putStrLn "Your guess must be a single character"
 
 gameOver :: Puzzle -> IO ()
-gameOver (Puzzle wordToGuess _ guessed) =
-    when (length guessed > maxWordLength) $
+gameOver (Puzzle wordToGuess filledInSoFar guessed) =
+    when (length guessed == maxGuesses && not (all isJust filledInSoFar)) $
         do
             putStrLn "You lose!"
             putStrLn $ "The word was: " ++ wordToGuess
