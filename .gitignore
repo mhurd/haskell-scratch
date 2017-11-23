@@ -18,5 +18,5 @@ cabal.sandbox.config
 .stack-work/
 cabal.project.local
 life
-hangman/.idea/
+.idea/
 *.iml

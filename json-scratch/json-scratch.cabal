@@ -1,0 +1,21 @@
+name:                json-scratch
+version:             0.1.0.0
+homepage:            https://github.com/githubuser/json-scratch#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Mike Hurd
+maintainer:          mike@foobar.com
+category:            Json
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+executable json-scratch
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                       , base-compat
+                       , aeson
+                       , bytestring
+
