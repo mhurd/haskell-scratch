@@ -13,25 +13,22 @@ module Main (main) where
 import Prelude ()
 import Prelude.Compat
 
-import Data.Aeson (FromJSON, ToJSON, decode, encode)
+import Data.Aeson (eitherDecode, encode)
 import qualified Data.ByteString.Lazy.Char8 as BL
-import GHC.Generics (Generic)
 
--- To decode or encode a value using the generic machinery, we must
--- make the type an instance of the Generic class.
-data Coord = Coord { x :: Double, y :: Double }
-             deriving (Show, Generic)
+import Library (Library, FromJSON)
 
--- While we still have to declare our type as instances of FromJSON
--- and ToJSON, we do *not* need to provide bodies for the instances.
--- Default versions will be supplied for us.
-
-instance FromJSON Coord
-instance ToJSON Coord
+eitherEncode :: Either String Library -> BL.ByteString
+eitherEncode (Right lib) = encode lib
+eitherEncode (Left errorMsg) = BL.pack errorMsg
 
 main :: IO ()
 main = do
-  let req = decode "{\"x\":3.0,\"y\":-1.0}" :: Maybe Coord
-  print req
-  let reply = Coord { x = 123.4, y = 20 }
-  BL.putStrLn (encode reply)
+  contents <- readFile "C:/Users/mhurd/development/workspace/haskell-scratch/json-scratch/src/library.json"
+  let decoded = (eitherDecode $ BL.pack contents) :: Either String Library
+  putStrLn "Haskell Record"
+  putStrLn "=============="
+  print decoded
+  putStrLn "JSON Doc"
+  putStrLn "========"
+  BL.putStrLn $ eitherEncode decoded
